@@ -65,7 +65,18 @@ cloakrs sanitize prompt.txt --mapping mapping.json --output clean.txt
 
 # Restore placeholders in the model's response using that mapping (tolerant by default).
 cloakrs restore response.txt --mapping mapping.json --output final.txt
+
+# Keep URLs, hostnames, and user paths while masking other entities.
+cloakrs --exclude-entities url,hostname,user-path stream
 ```
+
+The same exclusions can be configured in `.cloakrs.toml`:
+
+```toml
+exclude_entities = ["url", "hostname", "user-path"]
+```
+
+Exclusions apply to all commands and unknown names are rejected. Excluding `url` keeps URL structure visible while nested URL-query recognizers can still mask supported PII such as email addresses and US SSNs.
 
 ## LLM Prompt Sanitization
 
