@@ -1876,6 +1876,46 @@ mod tests {
     }
 
     #[test]
+    fn test_url_exclusion_leaves_unrecognized_credentials_visible() {
+        let mut global = Cli::parse_from(["cloakrs", "--quiet", "stream"]).global;
+        let default_scanner = build_scanner(&global).unwrap();
+        global.exclude_entities = vec![EntityTypeArg::Url];
+        let excluded_scanner = build_scanner(&global).unwrap();
+
+        for input in [
+            "https://alice:supersecret@example.com/private",
+            "https://example.com?api_key=%61%62%63%64%65%66%67%68%69%6a%6b%6c%6d%6e%6f%70%71%72%73%74%75%76%77%78",
+        ] {
+            assert_eq!(
+                default_scanner.scan(input).unwrap().masked_text.as_deref(),
+                Some("[URL]")
+            );
+            assert_eq!(
+                excluded_scanner.scan(input).unwrap().masked_text.as_deref(),
+                Some(input)
+            );
+            let mut output = Vec::new();
+            stream_reader(&global, io::Cursor::new(input), &mut output).unwrap();
+            assert_eq!(String::from_utf8(output).unwrap(), format!("{input}\n"));
+        }
+    }
+
+    #[test]
+    fn test_stream_excluding_url_still_masks_percent_encoded_email() {
+        let global =
+            Cli::parse_from(["cloakrs", "--quiet", "--exclude-entities", "url", "stream"]).global;
+        for prefix in ["", "level=info "] {
+            let input = format!("{prefix}https://example.com?email=jane%40example.com\n");
+            let mut output = Vec::new();
+            stream_reader(&global, io::Cursor::new(input), &mut output).unwrap();
+            assert_eq!(
+                String::from_utf8(output).unwrap(),
+                format!("{prefix}https://example.com?email=[EMAIL]\n")
+            );
+        }
+    }
+
+    #[test]
     fn test_render_stream_summary_json_uses_machine_readable_shape() {
         let summary = StreamSummary {
             lines_scanned: 2,
@@ -2145,6 +2185,7 @@ exclude_entities = ["user-path"]
     fn sanitize_restore_global() -> GlobalOptions {
         GlobalOptions {
             locale: vec![LocaleArg::Us],
+            exclude_entities: Vec::new(),
             strategy: StrategyArg::Redact,
             min_confidence: 0.5,
             output_format: OutputFormat::Text,

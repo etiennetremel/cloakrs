@@ -78,6 +78,8 @@ exclude_entities = ["url", "hostname", "user-path"]
 
 Exclusions apply to all commands and unknown names are rejected. Excluding `url` keeps URL structure visible while nested URL-query recognizers can still mask supported PII such as email addresses and US SSNs.
 
+**Warning:** Excluding `url` can expose URL-embedded credentials that no other recognizer catches. For example, `https://alice:supersecret@example.com/private` and percent-encoded API keys in query parameters can remain visible. Keep URL detection enabled when those values must be masked.
+
 ## LLM Prompt Sanitization
 
 ```rust
