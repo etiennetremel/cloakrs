@@ -44,6 +44,9 @@ pub struct GlobalOptions {
     )]
     pub locale: Vec<LocaleArg>,
     /// Entity types to exclude, separated by commas.
+    ///
+    /// Combined with exclusions in the configuration file. Excluding URL findings
+    /// can leave embedded credentials visible; other entity types remain active.
     #[arg(long, global = true, value_delimiter = ',')]
     pub exclude_entities: Vec<EntityTypeArg>,
     /// Masking strategy to apply.
@@ -279,33 +282,61 @@ impl From<PlaceholderStyleArg> for cloakrs_core::PlaceholderStyle {
 #[value(rename_all = "kebab-case")]
 #[serde(rename_all = "kebab-case")]
 pub enum EntityTypeArg {
+    /// Email address.
     Email,
+    /// Phone number.
     PhoneNumber,
+    /// Payment card number.
     CreditCard,
+    /// International Bank Account Number.
     Iban,
+    /// IP address.
     IpAddress,
+    /// URL, including the protection provided by masking the entire URL.
     Url,
+    /// Date of birth.
     DateOfBirth,
+    /// Generic API key.
     ApiKey,
+    /// JSON Web Token.
     Jwt,
+    /// AWS access key.
     AwsAccessKey,
+    /// Cryptocurrency wallet address.
     CryptoAddress,
+    /// MAC address.
     MacAddress,
+    /// Internal hostname or machine name.
     Hostname,
+    /// User home-directory path.
     UserPath,
+    /// Person name.
     PersonName,
+    /// Physical street address.
     PhysicalAddress,
+    /// Reserved passport type; no bundled recognizer.
     PassportNumber,
+    /// Reserved driver's license type; no bundled recognizer.
     DriversLicense,
+    /// US Social Security Number.
     Ssn,
+    /// Dutch Burgerservicenummer.
     Bsn,
+    /// UK National Insurance number.
     Nino,
+    /// UK NHS number.
     NhsNumber,
+    /// Indian Aadhaar number.
     Aadhaar,
+    /// Indian Permanent Account Number.
     Pan,
+    /// Brazilian CPF.
     Cpf,
+    /// Brazilian CNPJ.
     Cnpj,
+    /// German tax identifier.
     SteuerId,
+    /// French INSEE/NIR number.
     InseeNir,
 }
 

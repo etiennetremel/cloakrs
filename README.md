@@ -66,7 +66,7 @@ cloakrs sanitize prompt.txt --mapping mapping.json --output clean.txt
 # Restore placeholders in the model's response using that mapping (tolerant by default).
 cloakrs restore response.txt --mapping mapping.json --output final.txt
 
-# Keep URLs, hostnames, and user paths while masking other entities.
+# Development version: keep URLs, hostnames, and user paths while masking other entities.
 cloakrs --exclude-entities url,hostname,user-path stream
 ```
 
@@ -76,9 +76,17 @@ The same exclusions can be configured in `.cloakrs.toml`:
 exclude_entities = ["url", "hostname", "user-path"]
 ```
 
-Exclusions apply to all commands and unknown names are rejected. Excluding `url` keeps URL structure visible while nested URL-query recognizers can still mask supported PII such as email addresses and US SSNs.
+Entity exclusions are available in the development version for the next release.
+They apply to `scan`, `stream`, `audit`, `pre-commit`, and `sanitize`; `restore`
+uses its saved mapping. CLI and TOML exclusions are combined, and unknown names
+are rejected. Excluding `url` preserves URLs while nested URL-query recognizers
+can still mask supported PII such as email addresses and US SSNs.
 
 **Warning:** Excluding `url` can expose URL-embedded credentials that no other recognizer catches. For example, `https://alice:supersecret@example.com/private` and percent-encoded API keys in query parameters can remain visible. Keep URL detection enabled when those values must be masked.
+
+See [entity exclusions](docs/entity-exclusions.md) for configuration rules, Rust
+usage, and a sanitization example. With no exclusions configured, all existing
+entity types remain enabled for the selected locale.
 
 ## LLM Prompt Sanitization
 
@@ -145,6 +153,7 @@ The benchmark harness covers 1KB through 10MB inputs for plain text, JSON, and C
 - [Installation and checksum verification](docs/installation.md)
 - [Security model and reporting](SECURITY.md)
 - [Detection evaluation and known gaps](docs/evaluation.md)
+- [Entity exclusions](docs/entity-exclusions.md)
 - [Adding recognizers](docs/adding-recognizers.md)
 - [Adding locale recognizers](docs/locale-guide.md)
 - [Supported entities](docs/supported-entities.md)

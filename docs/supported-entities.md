@@ -47,6 +47,11 @@ ssn, bsn, nino, nhs-number, aadhaar, pan, cpf, cnpj, steuer-id, insee-nir
 
 Unknown names are rejected. Exclusions filter findings after universal and locale recognizers run. Consequently, excluding `url` preserves the URL itself while nested URL-query findings such as `Email` or `Ssn` remain active unless separately excluded.
 
+This feature is part of the next release. CLI, top-level TOML, and `[scanner]`
+TOML exclusions are combined; duplicates have no additional effect. See
+[entity exclusions](entity-exclusions.md) for precedence, literal-list behavior,
+and examples. Reserved types in the list do not enable new recognizers.
+
 **Warning:** Nested findings do not guarantee that URL-embedded secrets are masked. With `url` excluded, credentials such as `https://alice:supersecret@example.com/private` and percent-encoded API keys in query parameters can remain visible when no other recognizer catches them. Percent-decoded query scanning covers email addresses and US SSNs, not arbitrary credentials or API keys. Keep URL detection enabled when those values must be masked.
 
 ## Nested URL Findings
